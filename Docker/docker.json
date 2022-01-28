@@ -1,0 +1,124 @@
+{
+    "proxygen_h3": {
+        "image": "lnicco/mvfst-qns:latest",
+        "entrypoint": "/proxygen/_build/proxygen/bin/hq",
+        "commands": [
+            "--log_response=false",
+            "--mode=client",
+            "--stream_flow_control=6291456",
+            "--conn_flow_control=15728640",
+            "--use_version=true",
+            "--quic-version=29",
+            "--logdir=''",
+            "--qlogger_path=/logs",
+            "--host={host}",
+            "--port={port}",
+            "--path={path}",
+            "--v=0"
+        ]
+    },
+    "ngtcp2_h3": {
+        "image": "ghcr.io/ngtcp2/ngtcp2-interop:latest",
+        "entrypoint": "/usr/local/bin/client",
+        "commands": [
+            "--exit-on-all-streams-close",
+            "--max-data=15728640",
+            "--max-stream-data-uni=6291456",
+            "--max-stream-data-bidi-local=6291456",
+            "--group=X25519",
+            "--qlog-dir=/logs",
+            "{host}",
+            "{port}",
+            "{url}"
+        ]
+    },
+    "curl_h2": {
+        "image": "curlimages/curl:latest",
+        "commands": [
+            "--insecure",
+            "-s",
+            "-w",
+            "time_namelookup:%{time_namelookup}\ntime_total:%{time_total}\n",
+            "-o",
+            "/dev/null",
+            "--connect-timeout",
+            "5",
+            "--max-time",
+            "120",
+            "--http2",
+            "{url}"
+        ]
+    },
+    "chrome_h2_single": {
+        "image": "chrome",
+        "entrypoint": "",
+        "cap_add": [
+            "SYS_ADMIN"
+        ],
+        "security_opt": [
+            "seccomp=seccomp.json"
+        ],
+        "commands": [
+            "node",
+            "/usr/src/app/chrome.js",
+            "{url}",
+            "--single",
+            "--no-h3",
+            "--dir=/logs"
+        ]
+    },
+    "chrome_h2_multiple": {
+        "image": "chrome",
+        "entrypoint": "",
+        "cap_add": [
+            "SYS_ADMIN"
+        ],
+        "security_opt": [
+            "seccomp=seccomp.json"
+        ],
+        "commands": [
+            "node",
+            "/usr/src/app/chrome.js",
+            "{url}",
+            "--no-single",
+            "--no-h3",
+            "--dir=/logs"
+        ]
+    },
+    "chrome_h3_single": {
+        "image": "chrome",
+        "entrypoint": "",
+        "cap_add": [
+            "SYS_ADMIN"
+        ],
+        "security_opt": [
+            "seccomp=seccomp.json"
+        ],
+        "commands": [
+            "node",
+            "/usr/src/app/chrome.js",
+            "{url}",
+            "--single",
+            "--h3",
+            "--dir=/logs"
+        ]
+    },
+    "chrome_h3_multiple": {
+        "image": "chrome",
+        "entrypoint": "",
+        "cap_add": [
+            "SYS_ADMIN"
+        ],
+        "security_opt": [
+            "seccomp=seccomp.json"
+        ],
+        "commands": [
+            "node",
+            "/usr/src/app/chrome.js",
+            "{url}",
+            "--no-single",
+            "--h3",
+            "--dir=/logs"
+        ]
+    }
+}
